@@ -1,0 +1,20 @@
+.toolbar {
+    display: flex;
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    z-index: 999;
+    padding: 4px 0;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 14px rgba(0,0,0,0.1), 0 0 2px rgba(0,0,0,0.1);
+    .toolbar-item {
+      &::after {
+        content: '|';
+        color: #ccc;
+      }
+      &:nth-last-child(1)::after {
+        content: '';
+      }
+    }
+  }
