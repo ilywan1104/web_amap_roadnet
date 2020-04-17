@@ -11,6 +11,7 @@ declare namespace AMapUI {
         autoSetFitView?: boolean
         clickToSelectPath?: boolean
         onTopWhenSelected?: boolean
+        renderOptions?: object
         // renderConstructor?: 
     }
 

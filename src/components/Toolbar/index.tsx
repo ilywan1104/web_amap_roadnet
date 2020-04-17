@@ -1,6 +1,6 @@
 import React, { useState, ReactEventHandler } from 'react'
 import { Button, Popover, Icon, Radio, Checkbox } from 'antd'
-import filesConfig from '@/assets/config'
+import filesConfig from '@/config'
 import styles from './index.less'
 
 const radioStyle = {

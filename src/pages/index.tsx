@@ -2,29 +2,91 @@ import React, { useEffect, useRef, useState, ReactEventHandler } from 'react'
 import { request } from 'umi'
 import { Spin } from 'antd'
 import Toolbar from '@/components/Toolbar'
-import filesConfig from '@/assets/config'
-
-
+import _config from '@/config'
 import styles from './index.less'
 
-
 let amap: any,
+  pathSimplifierIns: any,
   layers = {};
 
 const opt: AMap.MapOptions = {
-  mapStyle: filesConfig.mapStyle[0].style,
+  mapStyle: _config.mapStyle[0].style,
   zoom: 5,
   center: [106.23893, 38.122758],
 }
 
-export default props => {
+const pathOpt: AMapUI.PathSimplifierOptions = {
+  // zIndex: 100,
+  getPath: function (pathData) {
+    //返回轨迹数据中的节点坐标信息，[AMap.LngLat, AMap.LngLat...] 或者 [[lng|number,lat|number],...]
+    return pathData.coordinate;
+  },
+  getHoverTitle: () => null,
+  renderOptions: {
+    //轨迹线的样式
+    pathLineStyle: {
+      strokeStyle: '#ff9900',
+      lineWidth: 1,
+      borderStyle: '#ff9900',
+      borderWidth: 1,
+      dirArrowStyle: false
+    },
+    pathLineHoverStyle: {
+      strokeStyle: '#3366cc',
+      lineWidth: 2,
+      borderStyle: '#3366cc',
+      borderWidth: 1,
+      dirArrowStyle: false
+    },
+    pathLineSelectedStyle: {
+      strokeStyle: '#3366cc',
+      lineWidth: 2,
+      borderStyle: '#3366cc',
+      borderWidth: 1,
+      dirArrowStyle: false
+    },
+    keyPointStyle: {
+      radius: 0,
+      lineWidth: 0,
+      fillStyle: 'rgba(0,0,0,0)',
+      strokeStyle: 'rgba(0,0,0,0)',
+    },
+    keyPointHoverStyle: {
+      radius: 0,
+      lineWidth: 0,
+      fillStyle: 'rgba(0,0,0,0)',
+      strokeStyle: 'rgba(0,0,0,0)',
+    },
+    startPointStyle: {
+      radius: 0,
+      lineWidth: 0,
+      fillStyle: 'rgba(0,0,0,0)',
+      strokeStyle: 'rgba(0,0,0,0)',
+    },
+    endPointStyle: {
+      radius: 0,
+      lineWidth: 0,
+      fillStyle: 'rgba(0,0,0,0)',
+      strokeStyle: 'rgba(0,0,0,0)',
+    }
+  }
+}
+
+const getJson = async (filePath: string) => request(`${window.location.protocol}//${window.location.host}${filePath}`)
+
+export default () => {
 
   const container = useRef(null)
   const [mapComplete, setMapComplete] = useState(false)
 
   // 路网切换
   const handleAreaChange = (e: ReactEventHandler) => {
-    console.log('handleAreaChange', e)
+    // console.log('handleAreaChange', e.itemData)
+    setMapComplete(false)
+    getJson(e.target.itemData.path).then(res => {
+      pathSimplifierIns.setData(res.filter(e => _config.lineTypes.includes(e.type)))
+      setMapComplete(true)
+    })
   }
 
   // 样式切换
@@ -51,26 +113,26 @@ export default props => {
       amap.on('complete', () => {
 
         // 初始化图层
-        filesConfig.layer.map(item => {
+        _config.layer.map(item => {
           layers[item.key] = new AMap.TileLayer[item.key]()
           layers[item.key].hide()
           amap.add(layers[item.key])
         })
 
-
         AMapUI.load(['ui/misc/PathSimplifier'], (PathSimplifier: AMapUI.PathSimplifier) => {
           if (!PathSimplifier.supportCanvas) {
             alert('当前环境不支持 Canvas！');
+            setMapComplete(true)
             return;
           }
-          // console.log(window.location)
-          const { protocol, host } = window.location
-          // const path = import(`${protocol}//${host}/public/files/line/line_gansu.json`)
-          // console.log(path)
-          request(`${protocol}//${host}/public/files/line/line_gansu.json`).then(res => {
-            console.log(res)
+
+          getJson(_config.area[0].path).then(res => {
+            pathOpt.map = amap
+            pathSimplifierIns = new PathSimplifier(pathOpt)
+            pathSimplifierIns.setData(res.filter(e => _config.lineTypes.includes(e.type)))
             setMapComplete(true)
           })
+
         })
       })
       // amap.on('click', (info: AMap.MapsEvent) => {
@@ -87,11 +149,11 @@ export default props => {
   return (
     <Spin spinning={!mapComplete}>
       <div className={styles['container']}>
-        {mapComplete && <Toolbar
+        <Toolbar
           onAreaChange={handleAreaChange}
           onStyleChange={handleStyleChange}
           onLayerChange={handleLayerChange}
-        />}
+        />
         <div
           style={{
             height: '100vh',
