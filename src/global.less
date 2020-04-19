@@ -3,3 +3,12 @@ div {
     padding: 0;
     margin: 0;
 }
+
+.path-hover-title {
+    border: none !important;
+    background-color: transparent !important;
+    &::after,
+    &::before {
+        top: calc(50% - 5px) !important;
+    }
+}

@@ -1,7 +1,7 @@
 import React, { useState, ReactEventHandler } from 'react'
-import { Button, Popover, Icon, Radio, Checkbox } from 'antd'
-import filesConfig from '@/config'
-import styles from './index.less'
+import { Button, Popover, Icon, Radio, Checkbox, Divider } from 'antd'
+import _config from '@/config'
+import indexless from './index.less'
 
 const radioStyle = {
     display: 'block',
@@ -10,86 +10,103 @@ const radioStyle = {
     marginLeft: 0,
 };
 
-const AreaPop = ({ onChange, defaultActive }) => (
-    <Radio.Group onChange={onChange} defaultValue={defaultActive}>
-        {filesConfig.area.map((item, index) => <Radio
+const RadioGroupPop = ({ options = [], ...rest }) => (
+    <Radio.Group {...rest}>
+        {options.length ? options.map((item, index) => <Radio
             key={index.toString()}
-            value={item.code}
-            itemData={item}
+            value={item.value}
+            record={item}
             style={radioStyle}
         >
-            {item.name}
-        </Radio>)}
+            {item.label}
+        </Radio>) : null}
     </Radio.Group>
 )
 
-const LayerPop = ({ onChange, defaultActive = null }) => (
-    <Checkbox.Group
-        onChange={onChange}
-    // defaultValue={defaultActive}
-    >
-        {filesConfig.layer.map((item, index) => <Checkbox
+const CheckboxGroupPop = ({ options = [], ...rest }) => (
+    <Checkbox.Group {...rest}>
+        {options.length ? options.map((item, index) => <Checkbox
             key={index.toString()}
-            value={item.key}
+            value={item.value}
+            record={item}
             style={radioStyle}
         >
-            {item.name}
-        </Checkbox>)}
+            {item.label}
+        </Checkbox>) : null}
     </Checkbox.Group>
-)
-
-const StylePop = ({ onChange, defaultActive }) => (
-    <Radio.Group onChange={onChange} defaultValue={defaultActive}>
-        {filesConfig.mapStyle.map((item, index) => <Radio
-            key={index.toString()}
-            value={item.style}
-            style={radioStyle}
-        >
-            {item.name}
-        </Radio>)}
-    </Radio.Group>
 )
 
 export default ({
     onAreaChange = () => null,
+    onTypeChange = () => null,
+    onTypeToggle = () => null,
     onLayerChange = () => null,
     onStyleChange = () => null,
-}) => {
-    console.log(filesConfig)
-    const [currAreaName, setCurrAreaName] = useState(filesConfig.area[0].name)
-
-    return (
-        <div className={styles['toolbar']}>
-            <div className={styles['toolbar-item']}>
+    areaValues,
+    typeValue,
+    layerValue,
+    styleValue,
+}) => (
+        <div className={indexless['toolbar']}>
+            <div className={indexless['toolbar-item']}>
                 <Popover
                     placement="bottomLeft"
-                    content={<AreaPop
-                        onChange={(e: ReactEventHandler) => {
-                            setCurrAreaName(e.target.itemData.name)
-                            onAreaChange(e)
-                        }}
-                        defaultActive={filesConfig.area[0].code}
+                    content={<RadioGroupPop
+                        value={areaValues.value}
+                        onChange={onAreaChange}
+                        options={_config.areas.options}
                     />}
                     trigger="click"
                 >
-                    <Button type="link"><Icon type="environment" theme="filled" /> {currAreaName}</Button>
+                    <Button type="link"><Icon type="environment" theme="filled" /> {areaValues.label}</Button>
                 </Popover>
             </div>
-            <div className={styles['toolbar-item']}>
+            <div className={indexless['toolbar-item']}>
                 <Popover
-                    content={<LayerPop
+                    content={<>
+                        <Button
+                            style={{
+                                display: 'block',
+                                textAlign: 'center',
+                                width: '100%'
+                            }}
+                            onClick={onTypeToggle}
+                            type='link'
+                        >
+                            {typeValue.length ? '全部关闭' : '全部选中'}
+                        </Button>
+                        <Divider style={{ margin: '5px 0' }} dashed/>
+                        <CheckboxGroupPop
+                            value={typeValue}
+                            onChange={onTypeChange}
+                            options={_config.types.options}
+                        />
+                    </>}
+                    trigger="click"
+                >
+                    <Button type="link">道路等级</Button>
+                </Popover>
+            </div>
+            <div className={indexless['toolbar-item']}>
+                <Popover
+                    content={<CheckboxGroupPop
+                        value={layerValue}
                         onChange={onLayerChange}
-                    // defaultActive={[filesConfig.layer[0].key]} 
+                        options={_config.layers.options}
                     />}
                     trigger="click"
                 >
                     <Button type="link">图层</Button>
                 </Popover>
             </div>
-            <div className={styles['toolbar-item']}>
+            <div className={indexless['toolbar-item']}>
                 <Popover
                     placement="bottomRight"
-                    content={<StylePop onChange={onStyleChange} defaultActive={filesConfig.mapStyle[0].style} />}
+                    content={<RadioGroupPop
+                        value={styleValue}
+                        onChange={onStyleChange}
+                        options={_config.styles.options}
+                    />}
                     trigger="click"
                 >
                     <Button type="link">风格</Button>
@@ -97,4 +114,3 @@ export default ({
             </div>
         </div>
     )
-}
