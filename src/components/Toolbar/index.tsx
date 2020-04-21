@@ -1,5 +1,5 @@
 import React, { useState, ReactEventHandler } from 'react'
-import { Button, Popover, Icon, Radio, Checkbox, Divider } from 'antd'
+import { Button, Popover, Icon, Radio, Checkbox, Divider, Row, Col } from 'antd'
 import _config from '@/config'
 import indexless from './index.less'
 
@@ -23,16 +23,22 @@ const RadioGroupPop = ({ options = [], ...rest }) => (
     </Radio.Group>
 )
 
-const CheckboxGroupPop = ({ options = [], ...rest }) => (
+const CheckboxGroupPop = ({ options = [], layout = { gutter: 0, span: 24 }, ...rest }) => (
     <Checkbox.Group {...rest}>
-        {options.length ? options.map((item, index) => <Checkbox
-            key={index.toString()}
-            value={item.value}
-            record={item}
-            style={radioStyle}
-        >
-            {item.label}
-        </Checkbox>) : null}
+        <Row gutter={layout.gutter}>
+            {options.length ? options.map((item, index) => <Col
+                span={layout.span}
+                key={index.toString()}
+            >
+            <Checkbox
+                value={item.value}
+                record={item}
+                style={radioStyle}
+            >
+                {item.label}
+            </Checkbox>
+            </Col>) : null}
+        </Row>
     </Checkbox.Group>
 )
 
@@ -47,7 +53,7 @@ export default ({
     layerValue,
     styleValue,
 }) => (
-        <div className={indexless['toolbar']}>
+        <div className={indexless['toolbar']} id="tool-bar">
             <div className={indexless['toolbar-item']}>
                 <Popover
                     placement="bottomLeft"
@@ -56,7 +62,8 @@ export default ({
                         onChange={onAreaChange}
                         options={_config.areas.options}
                     />}
-                    trigger="click"
+                    getPopupContainer={() => document.getElementById('tool-bar')}
+                    // trigger="click"
                 >
                     <Button type="link"><Icon type="environment" theme="filled" /> {areaValues.label}</Button>
                 </Popover>
@@ -75,16 +82,21 @@ export default ({
                         >
                             {typeValue.length ? '全部关闭' : '全部选中'}
                         </Button>
-                        <Divider style={{ margin: '5px 0' }} dashed/>
+                        <Divider style={{ margin: '5px 0' }} dashed />
                         <CheckboxGroupPop
+                            layout={{
+                                gutter: 0,
+                                span: 12,
+                            }}
                             value={typeValue}
                             onChange={onTypeChange}
                             options={_config.types.options}
                         />
                     </>}
-                    trigger="click"
+                    getPopupContainer={() => document.getElementById('tool-bar')}
+                    // trigger="click"
                 >
-                    <Button type="link">道路等级</Button>
+                    <Button type="link"><Icon type="funnel-plot" theme="filled" /> 道路等级</Button>
                 </Popover>
             </div>
             <div className={indexless['toolbar-item']}>
@@ -94,12 +106,13 @@ export default ({
                         onChange={onLayerChange}
                         options={_config.layers.options}
                     />}
-                    trigger="click"
+                    getPopupContainer={() => document.getElementById('tool-bar')}
+                    // trigger="click"
                 >
-                    <Button type="link">图层</Button>
+                    <Button type="link"><Icon type="appstore" theme="filled" /> 图层</Button>
                 </Popover>
             </div>
-            <div className={indexless['toolbar-item']}>
+            <div className={`${indexless['toolbar-item']} ${indexless['no-after']}`}>
                 <Popover
                     placement="bottomRight"
                     content={<RadioGroupPop
@@ -107,9 +120,10 @@ export default ({
                         onChange={onStyleChange}
                         options={_config.styles.options}
                     />}
-                    trigger="click"
+                    getPopupContainer={() => document.getElementById('tool-bar')}
+                    // trigger="click"
                 >
-                    <Button type="link">风格</Button>
+                    <Button type="link"><Icon type="skin" theme="filled" /> 风格</Button>
                 </Popover>
             </div>
         </div>

@@ -7,6 +7,7 @@ import _config from '@/config'
 import styles from './index.less'
 
 let amap: any,
+  districtPolygon: any,
   pathSimplifierIns: any,
   layers = {};
 
@@ -33,7 +34,7 @@ const pointStyle = {
 
 const pathOpt: AMapUI.PathSimplifierOptions = {
   zIndex: 99,
-  // autoSetFitView: false,
+  autoSetFitView: false,
   getPath: pathData => {
     //返回轨迹数据中的节点坐标信息，[AMap.LngLat, AMap.LngLat...] 或者 [[lng|number,lat|number],...]
     return pathData.coordinate;
@@ -111,13 +112,46 @@ export default () => {
     setTypeValue(keys)
   }
 
+  // 获取路网数据及渲染多边形
+  const getRoadData = async () => {
+    const roads = await getJson(areaValues.path)
+    if (districtPolygon) amap.remove(districtPolygon)
+    new AMap.DistrictSearch({
+      extensions: 'all',
+      subdistrict: 0
+    }).search(areaValues.label, function (status, result) {
+      districtPolygon = []
+      const bounds = result.districtList[0].boundaries
+      if (bounds) {
+        for (let i = 0, l = bounds.length; i < l; i++) {
+          //生成行政区划polygon
+          let polygon = new AMap.Polygon({
+            strokeWeight: 1,
+            path: bounds[i],
+            fillOpacity: 0.1,
+            fillColor: '#80d8ff',
+            strokeColor: '#0091ea'
+          });
+          districtPolygon.push(polygon);
+        }
+      }
+      amap.add(districtPolygon)
+      amap.setFitView(districtPolygon)
+    })
+    return roads
+  }
+
   // didMount
   useEffect(() => {
     if (AMap && AMapUI) {
       amap = new AMap.Map(container.current, {
         zoom: 5,
         center: [106.23893, 38.122758],
+        expandZoomRange: true,
+        zooms: [3, 20]
       })
+      // 异步加载插件
+      AMap.plugin('AMap.DistrictSearch')
       // 地图加载完成
       amap.on('complete', () => {
         // 实例化图层
@@ -157,7 +191,7 @@ export default () => {
     if (areaValues) {
       setRoadData([])
       setMapComplete(false)
-      getJson(areaValues.path)
+      getRoadData()
         .then(res => {
           setRoadData(res)
         })
