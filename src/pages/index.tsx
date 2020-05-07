@@ -9,22 +9,15 @@ import styles from './index.less'
 let amap: any,
   districtPolygon: any,
   pathSimplifierIns: any,
+  infoWindow: any,
   layers = {};
 
-/**
- * 海量线配置
-*/
-const HoverTitle = props => {
-  return (
-    <div style={{
-      color: '#fff',
-      backgroundColor: 'rgba(0,0,0,.5)'
-    }}>
-      {props.title}
-    </div>
-  )
-}
 
+const requestUrl = 'http://47.107.27.11:5003/RoadService/road/getroadline'
+
+/**
+ * 海量线配置项
+*/
 const pointStyle = {
   radius: 0,
   lineWidth: 0,
@@ -37,20 +30,15 @@ const pathOpt: AMapUI.PathSimplifierOptions = {
   autoSetFitView: false,
   getPath: pathData => {
     //返回轨迹数据中的节点坐标信息，[AMap.LngLat, AMap.LngLat...] 或者 [[lng|number,lat|number],...]
-    return pathData.coordinate;
+    return pathData.cd;
   },
-  getHoverTitle: pathData => {
-    const name = _config.types.options.find(e => e.value === pathData.type).name
-    const domTemp = document.createElement('div')
-    render(<HoverTitle title={name} />, domTemp)
-    return domTemp.innerHTML
-  },
+  getHoverTitle: () => null,
   renderOptions: {
     //轨迹线的样式
     pathLineStyle: {
-      strokeStyle: '#ff9900',
+      strokeStyle: 'red',//'#ff9900',
       lineWidth: 1,
-      borderStyle: '#ff9900',
+      borderStyle: 'red',//'#ff9900',
       borderWidth: 1,
       dirArrowStyle: false
     },
@@ -126,11 +114,12 @@ export default () => {
         for (let i = 0, l = bounds.length; i < l; i++) {
           //生成行政区划polygon
           let polygon = new AMap.Polygon({
-            strokeWeight: 1,
+            zIndex: 2,
+            strokeWeight: 2,
             path: bounds[i],
-            fillOpacity: 0.1,
+            fillOpacity: 0,
             fillColor: '#80d8ff',
-            strokeColor: '#0091ea'
+            strokeColor: 'red',//'#0091ea'
           });
           districtPolygon.push(polygon);
         }
@@ -139,6 +128,34 @@ export default () => {
       amap.setFitView(districtPolygon)
     })
     return roads
+  }
+
+  const handlePathSimplifierInsMouseover = async (event, pointInfo) => {
+    console.log(event, pointInfo)
+    const { originalEvent } = event
+    const { pathData } = pointInfo
+    const res = await request(`${requestUrl}/${pathData.dbName}/${pathData.id}`)
+    if (!res && res.status !== '1') {
+      return
+    }
+    const { roadList } = res
+    if (infoWindow) {
+      let roadInfo = JSON.parse(roadList)[0]
+      let dom = document.createElement('div')
+      render(<dl style={{ margin: 0 }}>
+        <dt style={{ marginBottom: 6, fontSize: 16 }}>道路信息</dt>
+        <dt style={{ margin: 0 }}>名称：{roadInfo.name || roadInfo.ref || '--'}</dt>
+        <dd style={{ margin: 0 }}>类型：{_config.types.options.find(e => e.value === roadInfo.fclass).label}</dd>
+        <dd style={{ margin: 0 }}>是否桥梁：{roadInfo.bridge === 'T' ? '是' : '否'}</dd>
+        <dd style={{ margin: 0 }}>是否隧道：{roadInfo.tunnel === 'T' ? '是' : '否'}</dd>
+      </dl>, dom)
+      infoWindow.setContent(dom)
+      infoWindow.open(amap, originalEvent.lnglat)
+    }
+  }
+
+  const handlePathSimplifierInsMouseout = () => {
+    amap.clearInfoWindow()
   }
 
   // didMount
@@ -172,8 +189,16 @@ export default () => {
 
           pathOpt.map = amap
           pathSimplifierIns = new PathSimplifier(pathOpt)
+          //  绑定事件
+          pathSimplifierIns.on('pathMouseover pointMouseover', handlePathSimplifierInsMouseover)
+          pathSimplifierIns.on('pathMouseout pointMouseout', handlePathSimplifierInsMouseout)
         })
 
+
+        // 实例化信息窗体
+        infoWindow = new AMap.InfoWindow({
+          anchor: 'bottom-center',
+        })
       })
       // amap.on('click', (info: AMap.MapsEvent) => {
       //   const center = amap?.getCenter()
@@ -182,7 +207,7 @@ export default () => {
       // })
     }
     return () => {
-      if (amap) amap.destroy()
+      // if (amap) amap.destroy()
     }
   }, [])
 
@@ -194,6 +219,7 @@ export default () => {
       getRoadData()
         .then(res => {
           setRoadData(res)
+          setMapComplete(true)
         })
     }
   }, [areaValues])
@@ -205,8 +231,10 @@ export default () => {
         setTypeValue(_config.types.defaultValue)
         return
       }
-      pathSimplifierIns.setData(roadData.filter(e => typeValue.includes(e.type)))
-      setMapComplete(true)
+      pathSimplifierIns.setData(roadData.filter(e => {
+        e.dbName = areaValues.db_name
+        return typeValue.includes(e.tp)
+      }))
     }
   }, [roadData, typeValue, pathSimplifierIns])
 
@@ -254,4 +282,4 @@ export default () => {
       </div>
     </Spin>
   );
-} /// default
+}

@@ -4,32 +4,44 @@ const config = {
             label: "广东省", // 名称
             value: 510000, // 邮政编码
             path: '/public/files/line/line_guangdong.json', // 路网文件路径
+            db_name: 'route_gd'
         },
+        // defaultValues: { // 默认值
+        //     label: "河源市",
+        //     value: 517000,
+        //     path: '/public/files/line/line_heyuan.json',
+        //     db_name: 'route_heyuan'
+        // },
         options: [
             {
                 label: "广东省",
                 value: 510000,
                 path: '/public/files/line/line_guangdong.json',
+                db_name: 'route_gd'
             },
             {
                 label: "湖南省",
                 value: 430000,
                 path: '/public/files/line/line_hunan.json',
+                db_name: 'route_hn'
             },
             {
                 label: "甘肃省",
                 value: 620000,
                 path: '/public/files/line/line_gansu.json',
+                db_name: 'route_gs'
             },
             {
                 label: "陕西省",
                 value: 610000,
                 path: '/public/files/line/line_shanxi.json',
+                db_name: 'route_sx'
             },
             {
                 label: "河源市",
                 value: 517000,
                 path: '/public/files/line/line_heyuan.json',
+                db_name: 'route_heyuan'
             }
 
         ]
@@ -66,9 +78,9 @@ const config = {
     },
     types: {
         defaultValue: [
-            'motorway','motorway_link',
-			'trunk','trunk_link',
-            'primary','primary_link'
+            'motorway', 'motorway_link',
+            'trunk', 'trunk_link',
+            'primary', 'primary_link'
         ], // 默认选中值
         options: [ // 选项值
             {
@@ -87,7 +99,7 @@ const config = {
                 label: '快速道路匝道',
                 value: 'trunk_link',
             },
-			{
+            {
                 label: '一级道路',
                 value: 'primary',
             },
@@ -112,33 +124,33 @@ const config = {
                 value: 'tertiary_link',
             },
             {
-                 label: '马道',
-                 value: 'bridleway',
+                label: '马道',
+                value: 'bridleway',
             },
-           // {
+            // {
             //     label: '建设中',
             //     value: 'construction',
             // },
-             {
-                 label: '自行车道',
-                 value: 'cycleway',
-             },
-             {
-                 label: '人行道',
-                 value: 'footway',
-             },
+            {
+                label: '自行车道',
+                value: 'cycleway',
+            },
+            {
+                label: '人行道',
+                value: 'footway',
+            },
             {
                 label: '生活街道',
                 value: 'living_street',
             },
-             {
-                 label: '非特定用途路',
-                 value: 'path',
-             },
-             {
-                 label: '步行街',
-                 value: 'pedestrian',
-             },
+            {
+                label: '非特定用途路',
+                value: 'path',
+            },
+            {
+                label: '步行街',
+                value: 'pedestrian',
+            },
             // {
             //     label: '月台',
             //     value: 'platform',
@@ -147,55 +159,55 @@ const config = {
             //     label: '赛道',
             //     value: 'raceway',
             // },
-             {
+            {
                 label: '居住区道路',
                 value: 'residential',
-             },
-             {
-                 label: '服务区道路',
-                 value: 'service',
-             },
-             {
-                 label: '人行阶梯',
-                 value: 'steps',
-             },
-             {
-                 label: '农路或产业道路',
-                 value: 'track',
-             },
-             {
-                 label: 'track_grade1',
-                 value: 'track_grade1',
-             },
-             {
-                 label: 'track_grade2',
-                 value: 'track_grade2',
-             },
-             {
-                 label: 'track_grade3',
-                 value: 'track_grade3',
-             },
-             {
-                 label: 'track_grade4',
-                 value: 'track_grade4',
-             },
-             {
-                 label: 'track_grade5',
-                 value: 'track_grade5',
-             },
-             {
+            },
+            {
+                label: '服务区道路',
+                value: 'service',
+            },
+            {
+                label: '人行阶梯',
+                value: 'steps',
+            },
+            {
+                label: '农路或产业道路',
+                value: 'track',
+            },
+            {
+                label: 'track_grade1',
+                value: 'track_grade1',
+            },
+            {
+                label: 'track_grade2',
+                value: 'track_grade2',
+            },
+            {
+                label: 'track_grade3',
+                value: 'track_grade3',
+            },
+            {
+                label: 'track_grade4',
+                value: 'track_grade4',
+            },
+            {
+                label: 'track_grade5',
+                value: 'track_grade5',
+            },
+            {
                 label: '待确定分类道路',
                 value: 'road',
-             },
-             {
+            },
+            {
                 label: '未分类道路',
                 value: 'unclassified',
-             },
-             {
+            },
+            {
                 label: '未知道路',
                 value: 'unknown',
-             }
-		]
+            }
+        ]
     }
 }
 
